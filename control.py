@@ -26,6 +26,10 @@ class Controller:
             # 清空已获取的坐标点
             self.ui.tk_input_nextCycleTime.delete(0, tk.END)
             self.ui.tk_input_nextTime.delete(0, tk.END)
+            self.ui.tk_input_deleteNum.delete(0, tk.END)
+            self.ui.tk_input_addNum.delete(0, tk.END)
+            self.ui.tk_input_x.delete(0, tk.END)
+            self.ui.tk_input_y.delete(0, tk.END)
             self.coordinates.clear()
             self.is_running = False
             self.click_count = 0  # 循环计数器
@@ -108,12 +112,12 @@ class Controller:
     locationNum = 0
     def print_mouse_position(self):
         global locationNum, coordinates
-        self.locationNum += 1
         # 获取鼠标的x, y坐标
         x, y = pyautogui.position()
         self.coordinates.append((x, y))
         # 将坐标打印到指定的Text组件中
-        self.update_localtionMsg(f"第{self.locationNum}个位置：{x} - {y}\n")
+        self.update_localtionMsg(f"第{self.locationNum}个位置：{x} - {y}\n",0)
+        self.locationNum += 1
 
     def update_msg(self,message_text):
         def safe_update():
@@ -125,17 +129,60 @@ class Controller:
 
         self.ui.after(0, safe_update)
 
-    def update_localtionMsg(self, message_text):
-        def safe_update():
+    def update_localtionMsg(self, message_text,type):
+        if type == 0:
+            def safe_update():
+                self.ui.tk_text_locationMsg.config(state='normal')
+                self.ui.tk_text_locationMsg.insert(tk.END, message_text)
+                self.ui.tk_text_locationMsg.config(state='disabled')
+                # 滚动到最底部
+                self.ui.tk_text_locationMsg.yview(tk.END)
+
+            self.ui.after(0, safe_update)
+        elif type == 1:
+            # 清除位置信息
             self.ui.tk_text_locationMsg.config(state='normal')
-            self.ui.tk_text_locationMsg.insert(tk.END, message_text)
+            self.ui.tk_text_locationMsg.delete('1.0', tk.END)
             self.ui.tk_text_locationMsg.config(state='disabled')
-            # 滚动到最底部
-            self.ui.tk_text_locationMsg.yview(tk.END)
+            message = ""
+            for idx, (x, y) in enumerate(self.coordinates):
+                message += f"第{idx}个位置：{x} - {y}\n"
+            # 一次性更新所有坐标信息
+            self.update_localtionMsg(message, 0)
 
-        self.ui.after(0, safe_update)
 
-    # 雷霆战机点位
+    def deleteOp(self):
+        try:
+            if self.ui.tk_input_deleteNum.get().strip() == "":
+                messagebox.showwarning("警告", "删除坐标位置未填写！\n")
+                return
+            else:
+                num = int(self.ui.tk_input_deleteNum.get().strip())
+                self.coordinates.pop(num)
+                self.update_localtionMsg("",1)
+        except Exception as e:
+            print(e)
+            messagebox.showwarning("警告", "当前填写位置不存在！\n")
+
+    def addOp(self):
+        if self.ui.tk_input_addNum.get().strip() == "" or self.ui.tk_input_x.get().strip() == "" or self.ui.tk_input_y.get().strip() == "":
+            messagebox.showwarning("警告", "新增位置或坐标未填写！\n")
+            return
+
+        index = int(self.ui.tk_input_addNum.get().strip())
+        if 0 <= index < len(self.coordinates):
+            x = int(self.ui.tk_input_x.get().strip())
+            y = int(self.ui.tk_input_y.get().strip())
+            if messagebox.askyesno("坐标提示", f"当前位置已存在坐标,选择‘是’，\n"
+                                               f"将替换位置为 {index} 的坐标值；选择‘否’，\n"
+                                               f"则新增位置为 {index} 的坐标值，\n其余坐标顺延至下一坐标！\n"):
+                self.coordinates[index] = (x, y)
+            else:
+                self.coordinates.insert(index, (x, y))
+
+            self.update_localtionMsg("", 1)
+
+            # 雷霆战机点位
     # def showLocation(self):
     #     global locationNum
     #     for x, y in self.coordinates:
