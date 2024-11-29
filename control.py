@@ -170,18 +170,25 @@ class Controller:
             return
 
         index = int(self.ui.tk_input_addNum.get().strip())
+        x = int(self.ui.tk_input_x.get().strip())
+        y = int(self.ui.tk_input_y.get().strip())
         if 0 <= index < len(self.coordinates):
-            x = int(self.ui.tk_input_x.get().strip())
-            y = int(self.ui.tk_input_y.get().strip())
             if messagebox.askyesno("坐标提示", f"当前位置已存在坐标,选择‘是’，\n"
                                                f"将替换位置为 {index} 的坐标值；选择‘否’，\n"
                                                f"则新增位置为 {index} 的坐标值，\n其余坐标顺延至下一坐标！\n"):
                 self.coordinates[index] = (x, y)
+                self.update_msg(
+                    f"选择是：将替换为 {index} 的坐标值，坐标点为 {x} - {y}\n")
             else:
                 self.coordinates.insert(index, (x, y))
+                self.update_msg(
+                    f"选择否：新增位置为 {index+1} 的坐标值，坐标点为 {x} - {y}，其余坐标顺延至下一坐标！\n")
 
-            self.update_localtionMsg("", 1)
+        else:
+            self.update_msg(f"所填位置 {index} 超出记录坐标点最大值，将新增坐标位置为： {len(self.coordinates)}，坐标点为 {x} - {y}\n")
+            self.coordinates.insert(len(self.coordinates), (x, y))
 
+        self.update_localtionMsg("", 1)
             # 雷霆战机点位
     # def showLocation(self):
     #     global locationNum
