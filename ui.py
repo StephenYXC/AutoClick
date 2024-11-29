@@ -4,15 +4,25 @@
 QQ交流群:905019785
 在线反馈:https://support.qq.com/product/618914
 """
-import random
+import random,sys,os
 from tkinter import *
 from tkinter.ttk import *
+from pynput import mouse
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
 class WinGUI(Tk):
     def __init__(self):
         super().__init__()
         self.__win()
         # 设置窗口图标
-        self.set_icon('.\\config\\click.png')  # 替换为您的图标文件路径
+        icon_path = resource_path('.\\config\\click.png')  # 使用 resource_path 函数
+        self.set_icon(icon_path)
+        self.icon = PhotoImage(file=icon_path)
+        self.wm_iconphoto(True, self.icon)
         self.tk_label_m2sokmro = self.__tk_label_m2sokmro(self)
         self.tk_label_m2soln9w = self.__tk_label_m2soln9w(self)
         self.tk_input_nextCycleTime = self.__tk_input_nextCycleTime(self)
@@ -23,8 +33,31 @@ class WinGUI(Tk):
         self.tk_label_m3z74nqu = self.__tk_label_m3z74nqu(self)
         self.tk_button_clearAll = self.__tk_button_clearAll(self)
         self.tk_button_startOrStop = self.__tk_button_startOrStop(self)
+        self.tk_button_delete = self.__tk_button_delete(self)
+        self.tk_input_deleteNum = self.__tk_input_deleteNum(self)
+        self.tk_button_add = self.__tk_button_add(self)
+        self.tk_input_addNum = self.__tk_input_addNum(self)
+        self.tk_label_opMsg1 = self.__tk_label_opMsg1(self)
+        self.tk_label_opMsg2 = self.__tk_label_opMsg2(self)
+        self.tk_label_xText = self.__tk_label_xText(self)
+        self.tk_input_x = self.__tk_input_x(self)
+        self.tk_label_yText = self.__tk_label_yText(self)
+        self.tk_input_y = self.__tk_input_y(self)
+        try:
+            self.listener = mouse.Listener(on_move=self.on_move)
+            self.listener.start()
+        except Exception as e:
+            print("==pynput== ",e)
+
+    def set_icon(self, path):
+        try:
+            icon = PhotoImage(file=path)
+            self.wm_iconphoto(True, icon)
+        except Exception as e:
+            print(f"无法设置图标：{e}")
+
     def __win(self):
-        self.title("自动连点器 V2.0")
+        self.title("自动连点器 V3.0")
         # 设置窗口大小、居中
         width = 641
         height = 400
@@ -74,25 +107,30 @@ class WinGUI(Tk):
         label = Label(parent,text="====================按下F6获取当前鼠标坐标====================",anchor="center", )
         label.place(x=0, y=10, width=640, height=30)
         return label
+    def on_move(self, x, y):
+        # 更新Label的文本，显示鼠标的位置
+        self.tk_label_m2sokmro.config(text=f"==========按下F6获取当前鼠标坐标，当前鼠标位置：x={x}, y={y}==========",
+                                      anchor="center")
+
     def __tk_label_m2soln9w(self,parent):
         label = Label(parent,text="- 距离下一个循环时间：",anchor="center", )
-        label.place(x=232, y=44, width=170, height=30)
+        label.place(x=352, y=44, width=170, height=30)
         return label
     def __tk_input_nextCycleTime(self,parent):
         ipt = Entry(parent, )
-        ipt.place(x=403, y=44, width=167, height=30)
+        ipt.place(x=515, y=44, width=50, height=30)
         return ipt
     def __tk_label_m2somc08(self,parent):
         label = Label(parent,text="- 距离下一个点击时间：",anchor="center", )
-        label.place(x=232, y=78, width=170, height=30)
+        label.place(x=352, y=78, width=170, height=30)
         return label
     def __tk_input_nextTime(self,parent):
         ipt = Entry(parent, )
-        ipt.place(x=403, y=78, width=167, height=30)
+        ipt.place(x=515, y=78, width=50, height=30)
         return ipt
     def __tk_text_locationMsg(self,parent):
         text = Text(parent, state='disabled')
-        text.place(x=9, y=44, width=220, height=343)
+        text.place(x=9, y=113, width=220, height=343)
         return text
     def __tk_text_msg(self,parent):
         text = Text(parent, state='disabled')
@@ -110,6 +148,48 @@ class WinGUI(Tk):
         btn = Button(parent, text="启动/停止（F7）", takefocus=False,command=self.ctl.startOrStop)
         btn.place(x=435, y=113, width=199, height=30)
         return btn
+
+    def __tk_button_delete(self,parent):
+        btn = Button(parent, text="删除", takefocus=False,command=self.ctl.deleteOp)
+        btn.place(x=9, y=44, width=50, height=30)
+        return btn
+    def __tk_input_deleteNum(self,parent):
+        ipt = Entry(parent, )
+        ipt.place(x=89, y=44, width=90, height=30)
+        return ipt
+    def __tk_button_add(self,parent):
+        btn = Button(parent, text="添加", takefocus=False,command=self.ctl.addOp)
+        btn.place(x=9, y=78, width=50, height=30)
+        return btn
+    def __tk_input_addNum(self,parent):
+        ipt = Entry(parent, )
+        ipt.place(x=89, y=78, width=90, height=30)
+        return ipt
+    def __tk_label_opMsg1(self,parent):
+        label = Label(parent,text="第",anchor="center", )
+        label.place(x=62, y=44, width=30, height=63)
+        return label
+    def __tk_label_opMsg2(self,parent):
+        label = Label(parent,text="个位置",anchor="center", )
+        label.place(x=180, y=44, width=50, height=63)
+        return label
+
+    def __tk_label_xText(self, parent):
+        label = Label(parent, text="X：", anchor="center", )
+        label.place(x=230, y=44, width=50, height=30)
+        return label
+    def __tk_input_x(self,parent):
+        ipt = Entry(parent, )
+        ipt.place(x=262, y=44, width=90, height=30)
+        return ipt
+    def __tk_label_yText(self, parent):
+        label = Label(parent, text="Y：", anchor="center", )
+        label.place(x=230, y=78, width=50, height=30)
+        return label
+    def __tk_input_y(self,parent):
+        ipt = Entry(parent, )
+        ipt.place(x=262, y=78, width=90, height=30)
+        return ipt
 
 class Win(WinGUI):
     def __init__(self, controller):
