@@ -57,7 +57,7 @@ class WinGUI(Tk):
             print(f"无法设置图标：{e}")
 
     def __win(self):
-        self.title("自动连点器 V3.0")
+        self.title("自动连点器 V3.1")
         # 设置窗口大小、居中
         width = 641
         height = 400
