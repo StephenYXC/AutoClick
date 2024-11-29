@@ -152,17 +152,19 @@ class Controller:
 
 
     def deleteOp(self):
+        index = int(self.ui.tk_input_deleteNum.get().strip())
         try:
             if self.ui.tk_input_deleteNum.get().strip() == "":
                 messagebox.showwarning("警告", "删除坐标位置未填写！\n")
                 return
             else:
-                num = int(self.ui.tk_input_deleteNum.get().strip())
-                self.coordinates.pop(num)
+                self.update_msg(
+                    f"已删除坐标值为 {index} 的坐标，坐标点为 {self.coordinates[index]}，位置已刷新\n")
+                self.coordinates.pop(index)
                 self.update_localtionMsg("",1)
         except Exception as e:
             print(e)
-            messagebox.showwarning("警告", "当前填写位置不存在！\n")
+            messagebox.showwarning("警告", "出错了！\n")
 
     def addOp(self):
         if self.ui.tk_input_addNum.get().strip() == "" or self.ui.tk_input_x.get().strip() == "" or self.ui.tk_input_y.get().strip() == "":
