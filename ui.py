@@ -1,3 +1,9 @@
+"""
+本代码由[Tkinter布局助手]生成
+官网:https://www.pytk.net
+QQ交流群:905019785
+在线反馈:https://support.qq.com/product/618914
+"""
 import random,sys,os
 from tkinter import *
 from tkinter.ttk import *
@@ -15,8 +21,6 @@ class WinGUI(Tk):
         # 设置窗口图标
         icon_path = resource_path('.\\config\\click.png')  # 使用 resource_path 函数
         self.set_icon(icon_path)
-        self.icon = PhotoImage(file=icon_path)
-        self.wm_iconphoto(True, self.icon)
         self.tk_label_m2sokmro = self.__tk_label_m2sokmro(self)
         self.tk_label_m2soln9w = self.__tk_label_m2soln9w(self)
         self.tk_input_nextCycleTime = self.__tk_input_nextCycleTime(self)
@@ -30,6 +34,7 @@ class WinGUI(Tk):
         self.tk_button_delete = self.__tk_button_delete(self)
         self.tk_input_deleteNum = self.__tk_input_deleteNum(self)
         self.tk_button_add = self.__tk_button_add(self)
+        self.tk_button_save = self.__tk_button_save(self)
         self.tk_input_addNum = self.__tk_input_addNum(self)
         self.tk_label_opMsg1 = self.__tk_label_opMsg1(self)
         self.tk_label_opMsg2 = self.__tk_label_opMsg2(self)
@@ -51,7 +56,7 @@ class WinGUI(Tk):
             print(f"无法设置图标：{e}")
 
     def __win(self):
-        self.title("自动连点器 V3.1")
+        self.title("自动连点器 V3.2")
         # 设置窗口大小、居中
         width = 641
         height = 400
@@ -134,13 +139,17 @@ class WinGUI(Tk):
         label = Label(parent,text="s/秒",anchor="center", )
         label.place(x=577, y=44, width=51, height=63)
         return label
+    def __tk_button_save(self,parent):
+        btn = Button(parent, text="保存坐标", takefocus=False,command=self.ctl.saveOp)
+        btn.place(x=232, y=113, width=132, height=30)
+        return btn
     def __tk_button_clearAll(self,parent):
         btn = Button(parent, text="清空（F5）", takefocus=False,command=self.ctl.clear)
-        btn.place(x=232, y=113, width=199, height=30)
+        btn.place(x=366, y=113, width=132, height=30)
         return btn
     def __tk_button_startOrStop(self,parent):
         btn = Button(parent, text="启动/停止（F7）", takefocus=False,command=self.ctl.startOrStop)
-        btn.place(x=435, y=113, width=199, height=30)
+        btn.place(x=499, y=113, width=132, height=30)
         return btn
 
     def __tk_button_delete(self,parent):
@@ -155,6 +164,7 @@ class WinGUI(Tk):
         btn = Button(parent, text="添加", takefocus=False,command=self.ctl.addOp)
         btn.place(x=9, y=78, width=50, height=30)
         return btn
+
     def __tk_input_addNum(self,parent):
         ipt = Entry(parent, )
         ipt.place(x=89, y=78, width=90, height=30)
@@ -192,6 +202,7 @@ class Win(WinGUI):
         # self.__event_bind()
         self.__style_config()
         self.ctl.init(self)
+        self.ctl.loadOp()
         # 显示雷霆战机点位
         # self.ctl.showLocation()
     # def __event_bind(self):
