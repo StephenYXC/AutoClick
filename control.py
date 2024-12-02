@@ -1,4 +1,4 @@
-import pyautogui,time,logging,threading,keyboard
+import pyautogui,time,logging,threading,keyboard,shelve
 import tkinter as tk
 from tkinter import messagebox,ttk
 
@@ -191,6 +191,24 @@ class Controller:
             self.coordinates.insert(len(self.coordinates), (x, y))
 
         self.update_localtionMsg("", 1)
+
+    def saveOp(self):
+        # 保存缓存
+        with shelve.open('cache.db') as db:
+            db['coordinates'] = self.coordinates
+            db['next_cycle_time'] = self.ui.tk_input_nextCycleTime.get().strip()
+            db['next_time'] = self.ui.tk_input_nextTime.get().strip()
+            self.update_msg(
+                f"已保存信息\n")
+
+    def loadOp(self):
+        # 加载缓存
+        with shelve.open('cache.db') as db:
+            self.coordinates = db.get('coordinates', [])
+            self.ui.tk_input_nextCycleTime.insert(0,db.get('next_cycle_time', ""))
+            self.ui.tk_input_nextTime.insert(0,db.get('next_time', ""))
+        self.update_localtionMsg("", 1)
+
             # 雷霆战机点位
     # def showLocation(self):
     #     global locationNum
