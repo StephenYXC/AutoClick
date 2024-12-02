@@ -114,9 +114,12 @@ class Controller:
         global locationNum, coordinates
         # 获取鼠标的x, y坐标
         x, y = pyautogui.position()
+        if len(self.coordinates) != 0:
+            self.locationNum = len(self.coordinates)
         self.coordinates.append((x, y))
         # 将坐标打印到指定的Text组件中
         self.update_localtionMsg(f"第{self.locationNum}个位置：{x} - {y}\n",0)
+        self.update_msg(f"已添加第 {self.locationNum} 个位置：{x} - {y}\n")
         self.locationNum += 1
 
     def update_msg(self,message_text):
@@ -204,7 +207,7 @@ class Controller:
     def loadOp(self):
         # 加载缓存
         with shelve.open('cache.db') as db:
-            self.coordinates = db.get('coordinates', [])
+            self.coordinates.extend(db.get('coordinates', []))
             self.ui.tk_input_nextCycleTime.insert(0,db.get('next_cycle_time', ""))
             self.ui.tk_input_nextTime.insert(0,db.get('next_time', ""))
         self.update_localtionMsg("", 1)
