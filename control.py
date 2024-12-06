@@ -30,6 +30,8 @@ class Controller:
             self.ui.tk_input_addNum.delete(0, tk.END)
             self.ui.tk_input_x.delete(0, tk.END)
             self.ui.tk_input_y.delete(0, tk.END)
+            self.ui.tk_input_date.delete(0, tk.END)
+            self.ui.tk_input_date.insert(0, self.ui.placeholder_text)  # 插入占位符文本
             self.coordinates.clear()
             self.is_running = False
             self.click_count = 0  # 循环计数器
@@ -94,14 +96,6 @@ class Controller:
         if len(self.coordinates) == 0:
             return True
         return False
-
-    #def on_key_press(self):
-        # if evt.keysym == 'F5':
-        #     self.clear(evt)
-        # elif evt.keysym == 'F6':
-        #     self.print_mouse_position()
-        # elif evt.keysym == 'F7':
-        #     self.startOrStop(evt)
 
     def bind_global_hotkeys(self):
         # 使用 lambda 函数来忽略事件参数
@@ -201,6 +195,7 @@ class Controller:
             db['coordinates'] = self.coordinates
             db['next_cycle_time'] = self.ui.tk_input_nextCycleTime.get().strip()
             db['next_time'] = self.ui.tk_input_nextTime.get().strip()
+            db['timing'] = self.ui.tk_input_date.get().strip()
             self.update_msg(
                 f"已保存信息\n")
 
@@ -210,8 +205,20 @@ class Controller:
             self.coordinates.extend(db.get('coordinates', []))
             self.ui.tk_input_nextCycleTime.insert(0,db.get('next_cycle_time', ""))
             self.ui.tk_input_nextTime.insert(0,db.get('next_time', ""))
+            if self.ui.tk_input_date.get().strip() != "":
+                self.ui.tk_input_date.delete(0, tk.END)
+                self.ui.tk_input_date.insert(0,db.get('timing', ""))
         self.update_localtionMsg("", 1)
 
+    # 最小化代码
+    def on_close(self):
+        if messagebox.askyesno("关闭", "是否关闭程序？"):
+            self.exit_app()
+        else:
+            return
+    def exit_app(self):
+        # 退出程序
+        self.ui.destroy()
             # 雷霆战机点位
     # def showLocation(self):
     #     global locationNum
