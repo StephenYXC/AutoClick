@@ -6,6 +6,7 @@ import tkinter as tk
 from threading import Thread, Timer
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime,timedelta  # 导入 timedelta
+from control import Controller  # 添加这行在文件顶部其他导入语句附近
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for PyInstaller """
@@ -53,6 +54,11 @@ class WinGUI(Tk):
         self.scheduler.start()  # 启动调度器
         self.job_id = None  # 用于存储当前的任务对象
 
+        self.tk_button_search = self.__tk_button_search(self)
+        self.tk_label_locMsg1 = self.__tk_label_locMsg1(self)
+        self.tk_input_loc = self.__tk_input_loc(self)
+        self.tk_label_locMsg2 = self.__tk_label_locMsg2(self)
+
         try:
             self.listener = mouse.Listener(on_move=self.on_move)
             self.listener.start()
@@ -60,15 +66,23 @@ class WinGUI(Tk):
             print("==pynput== ",e)
 
         # 初始更新时间
+        self.tk_button_showMs = self.__tk_button_showMs(self)
+        self.yesNoShowMs = False
         self.current_time = None
         self.update_time()
 
     def update_time(self):
         # 获取当前时间，格式化为 "年-月-日 时:分:秒.毫秒"
-        self.current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        if self.yesNoShowMs:
+            self.current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            # 1000毫秒后再次调用update_time来更新时间
+            self.after(1, self.update_time)
+        else:
+            self.current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # 1000毫秒后再次调用update_time来更新时间
+            self.after(1000, self.update_time)
         self.tk_label_time_title.config(text=f"{self.current_time}",anchor="center")
-        # 1000毫秒后再次调用update_time来更新时间
-        self.after(1, self.update_time)
+
 
     def set_icon(self, path):
         try:
@@ -78,7 +92,7 @@ class WinGUI(Tk):
             print(f"无法设置图标：{e}")
 
     def __win(self):
-        self.title("自动连点器 V3.5.1")
+        self.title("自动连点器 V3.5.3")
         # 设置窗口大小、居中
         width = 641
         height = 430
@@ -125,6 +139,15 @@ class WinGUI(Tk):
             self.h_scrollbar(hbar, widget, x, y, w, h, pw, ph)
         self.scrollbar_autohide(vbar, hbar, widget)
 
+    def __tk_button_showMs(self,parent):
+        btn = Button(parent, text="显示/关闭毫秒", takefocus=False,command=self.updateStatus)
+        btn.place(x=20, y=10, width=150, height=30)
+        return btn
+    def updateStatus(self):
+        if self.yesNoShowMs:
+            self.yesNoShowMs = False
+        else:
+            self.yesNoShowMs = True
     def __tk_label_time_title(self, parent):
         label = Label(parent, text="",anchor="center", )
         label.place(x=0, y=10, width=640, height=30)
@@ -160,7 +183,7 @@ class WinGUI(Tk):
         return text
     def __tk_text_msg(self,parent):
         text = Text(parent, state='disabled')
-        text.place(x=232, y=177, width=402, height=245)
+        text.place(x=232, y=209, width=402, height=245)
         return text
     def __tk_label_m3z74nqu(self,parent):
         label = Label(parent,text="s/秒",anchor="center", )
@@ -307,6 +330,23 @@ class WinGUI(Tk):
                 self.ctl.update_msg("任务不存在或已执行完毕\n")
         else:
             self.ctl.update_msg("没有任务正在运行\n")
+
+    def __tk_button_search(self,parent):
+        btn = Button(parent, text="查询", takefocus=False,command=self.ctl.searchLoc)
+        btn.place(x=232, y=177, width=40, height=30)
+        return btn
+    def __tk_label_locMsg1(self, parent):
+        label = Label(parent, text="第",anchor="center")
+        label.place(x=275, y=177, width=40, height=30)
+        return label
+    def __tk_input_loc(self,parent):
+        ipt = Entry(parent, )
+        ipt.place(x=313, y=177, width=270, height=30)
+        return ipt
+    def __tk_label_locMsg2(self, parent):
+        label = Label(parent, text="个位置",anchor="center")
+        label.place(x=575, y=177, width=60, height=30)
+        return label
 
     # 最小化代码
     def on_close(self):
