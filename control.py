@@ -47,6 +47,7 @@ class Controller:
             # 清空并删除已保存到文件里的数据
             messagebox.showinfo("信息", "所有数据已清空")
 
+    click_count = 0  # 循环计数器
     # 启动或停止
     def startOrStop(self):
         global is_running
@@ -60,9 +61,8 @@ class Controller:
             threading.Thread(target=self.startClickThread).start()  # 使用线程启动连点操作
         else:
             self.is_running = False
-            self.update_msg("------------------停止连点------------------\n")
+            self.update_msg("停止连点,若已开启连点，则等待一轮连点结束\n")
 
-    click_count = 0  # 循环计数器
     def startClickThread(self):
         global click_count, is_running
         seconds1 = float(self.ui.tk_input_nextCycleTime.get())
@@ -115,6 +115,18 @@ class Controller:
         self.update_localtionMsg(f"第{self.locationNum}个位置：{x} - {y}\n",0)
         self.update_msg(f"已添加第 {self.locationNum} 个位置：{x} - {y}\n")
         self.locationNum += 1
+
+    def searchLoc(self):
+        index = int(self.ui.tk_input_loc.get())
+        if index == "":
+            self.update_msg(f"未填写需要查询的位置\n")
+            return
+        else:
+            x, y = self.coordinates[index]
+            # 移动鼠标到坐标点(x, y)
+            pyautogui.moveTo(x, y)
+            self.update_msg(
+                f"查询坐标值为 {index} 的坐标，坐标点为 {self.coordinates[index]}，鼠标已移动到查询位置\n")
 
     def update_msg(self,message_text):
         def safe_update():
