@@ -32,7 +32,7 @@ class WinGUI(Tk):
         self.tk_button_clearAll = self.__tk_button_clearAll(self)
         self.tk_button_startOrStop = self.__tk_button_startOrStop(self)
         self.tk_button_delete = self.__tk_button_delete(self)
-        self.tk_input_deleteNum = self.__tk_input_deleteNum(self)
+        # self.tk_input_deleteNum = self.__tk_input_deleteNum(self)
         self.tk_button_add = self.__tk_button_add(self)
         self.tk_button_save = self.__tk_button_save(self)
         self.tk_input_addNum = self.__tk_input_addNum(self)
@@ -48,6 +48,7 @@ class WinGUI(Tk):
 
         self.tk_label_timeMsg1 = self.__tk_label_timeMsg1(self)
         self.placeholder_text = "如：00:00:00:000"
+        self.placeholder_text2 = "查一个位置填1，查多个位置则1,2,3"
         self.tk_input_date = self.__tk_input_date(self)
         self.tk_button_timing = self.__tk_button_timing(self)
         self.scheduler = BackgroundScheduler()  # 创建后台调度器
@@ -92,7 +93,7 @@ class WinGUI(Tk):
             print(f"无法设置图标：{e}")
 
     def __win(self):
-        self.title("自动连点器 V3.5.3")
+        self.title("自动连点器 V3.6.0")
         # 设置窗口大小、居中
         width = 641
         height = 430
@@ -206,10 +207,10 @@ class WinGUI(Tk):
         btn = Button(parent, text="删除", takefocus=False,command=self.ctl.deleteOp)
         btn.place(x=9, y=80, width=50, height=30)
         return btn
-    def __tk_input_deleteNum(self,parent):
-        ipt = Entry(parent, )
-        ipt.place(x=89, y=80, width=90, height=30)
-        return ipt
+    # def __tk_input_deleteNum(self,parent):
+    #     ipt = Entry(parent, )
+    #     ipt.place(x=89, y=80, width=90, height=30)
+    #     return ipt
     def __tk_button_add(self,parent):
         btn = Button(parent, text="添加", takefocus=False,command=self.ctl.addOp)
         btn.place(x=9, y=113, width=50, height=30)
@@ -217,7 +218,7 @@ class WinGUI(Tk):
 
     def __tk_input_addNum(self,parent):
         ipt = Entry(parent, )
-        ipt.place(x=89, y=113, width=90, height=30)
+        ipt.place(x=88, y=95, width=90, height=30)
         return ipt
     def __tk_label_opMsg1(self,parent):
         label = Label(parent,text="第",anchor="center", )
@@ -333,16 +334,36 @@ class WinGUI(Tk):
 
     def __tk_button_search(self,parent):
         btn = Button(parent, text="查询", takefocus=False,command=self.ctl.searchLoc)
-        btn.place(x=232, y=177, width=40, height=30)
+        btn.place(x=232, y=177, width=50, height=30)
         return btn
     def __tk_label_locMsg1(self, parent):
         label = Label(parent, text="第",anchor="center")
-        label.place(x=275, y=177, width=40, height=30)
+        label.place(x=282, y=177, width=30, height=30)
         return label
     def __tk_input_loc(self,parent):
         ipt = Entry(parent, )
         ipt.place(x=313, y=177, width=270, height=30)
+        ipt.insert(0, self.placeholder_text2)  # 插入占位符文本
+        ipt.bind("<Button-1>", self.on_click2)  # 绑定点击事件
+        ipt.bind("<FocusIn>", self.on_focus2)  # 绑定获得焦点事件
+        ipt.bind("<FocusOut>", self.on_blur2)  # 绑定失去焦点事件
         return ipt
+    def on_blur2(self, event):
+        # 失去焦点时如果文本为空，则插入占位符
+        widget = event.widget
+        if widget.get() == '':
+            widget.insert(0, self.placeholder_text2)
+    def on_click2(self, event):
+        # 点击时如果文本是占位符，则删除
+        widget = event.widget
+        if widget.get() == self.placeholder_text2:
+            widget.delete(0, tk.END)
+
+    def on_focus2(self, event):
+        # 获得焦点时如果文本是占位符，则删除
+        widget = event.widget
+        if widget.get() == self.placeholder_text2:
+            widget.delete(0, tk.END)
     def __tk_label_locMsg2(self, parent):
         label = Label(parent, text="个位置",anchor="center")
         label.place(x=575, y=177, width=60, height=30)
