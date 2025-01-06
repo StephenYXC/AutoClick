@@ -26,7 +26,9 @@ class Controller:
             # 清空已获取的坐标点
             self.ui.tk_input_nextCycleTime.delete(0, tk.END)
             self.ui.tk_input_nextTime.delete(0, tk.END)
-            self.ui.tk_input_deleteNum.delete(0, tk.END)
+            # self.ui.tk_input_deleteNum.delete(0, tk.END)
+            self.ui.tk_input_loc.delete(0, tk.END)
+            self.ui.tk_input_loc.insert(0, self.ui.placeholder_text2)  # 插入占位符文本
             self.ui.tk_input_addNum.delete(0, tk.END)
             self.ui.tk_input_x.delete(0, tk.END)
             self.ui.tk_input_y.delete(0, tk.END)
@@ -117,16 +119,23 @@ class Controller:
         self.locationNum += 1
 
     def searchLoc(self):
-        index = int(self.ui.tk_input_loc.get())
-        if index == "":
+        # input = self.ui.tk_input_loc.get().strip()
+        if self.ui.tk_input_loc.get().strip() == "":
             self.update_msg(f"未填写需要查询的位置\n")
             return
         else:
-            x, y = self.coordinates[index]
-            # 移动鼠标到坐标点(x, y)
-            pyautogui.moveTo(x, y)
-            self.update_msg(
-                f"查询坐标值为 {index} 的坐标，坐标点为 {self.coordinates[index]}，鼠标已移动到查询位置\n")
+            input_string = self.ui.tk_input_loc.get().strip().replace('，', ',')
+            numbers = input_string.split(',')
+            try:
+                for number in numbers:
+                    x, y = self.coordinates[int(number)]
+                    # 移动鼠标到坐标点(x, y)
+                    pyautogui.moveTo(x, y)
+                    self.update_msg(
+                        f"查询坐标值为 {int(number)} 的坐标，坐标点为 {x, y}，鼠标已移动到查询位置\n")
+            except Exception as e:
+                self.update_msg(
+                    f"当前查询坐标值为 {numbers} 的坐标不存在\n")
 
     def update_msg(self,message_text):
         def safe_update():
@@ -159,14 +168,13 @@ class Controller:
             # 一次性更新所有坐标信息
             self.update_localtionMsg(message, 0)
 
-
     def deleteOp(self):
-        index = int(self.ui.tk_input_deleteNum.get().strip())
         try:
-            if self.ui.tk_input_deleteNum.get().strip() == "":
+            if self.ui.tk_input_addNum.get().strip() == "":
                 messagebox.showwarning("警告", "删除坐标位置未填写！\n")
                 return
             else:
+                index = int(self.ui.tk_input_addNum.get().strip())
                 self.update_msg(
                     f"已删除坐标值为 {index} 的坐标，坐标点为 {self.coordinates[index]}，位置已刷新\n")
                 self.coordinates.pop(index)
@@ -217,9 +225,9 @@ class Controller:
             self.coordinates.extend(db.get('coordinates', []))
             self.ui.tk_input_nextCycleTime.insert(0,db.get('next_cycle_time', ""))
             self.ui.tk_input_nextTime.insert(0,db.get('next_time', ""))
-            if self.ui.tk_input_date.get().strip() != "":
-                self.ui.tk_input_date.delete(0, tk.END)
-                self.ui.tk_input_date.insert(0,db.get('timing', ""))
+            self.ui.tk_input_date.insert(0, db.get('timing', ""))
+            if self.ui.tk_input_date.get().strip() == "":
+                self.ui.tk_input_date.insert(0, self.ui.placeholder_text)  # 插入占位符文本
         self.update_localtionMsg("", 1)
 
     # 最小化代码
